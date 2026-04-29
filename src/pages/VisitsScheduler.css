@@ -1,0 +1,18 @@
+.visits-scheduler {
+  max-width: 100%;
+}
+
+.slot-card:hover {
+  background: #EBEBEB;
+  border-color: var(--border-highlight);
+}
+
+.slot-card.selected {
+  background: #EBF5FF;
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 1px var(--brand-accent);
+}
+
+.slot-card.selected svg {
+  color: var(--brand-accent);
+}

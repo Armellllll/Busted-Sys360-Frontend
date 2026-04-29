@@ -1,0 +1,127 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Roboto+Mono:wght@400;500&family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  --bg-main: #F5F5F5; /* Fond principal */
+  --bg-sidebar: #1A2B4A; /* Bleu marine foncé - Sidebar */
+  --bg-card: #FFFFFF; /* White cards */
+  --bg-card-hover: #F8F9FA;
+  --border-color: #E2E8F0;
+  --border-highlight: #CBD5E1;
+  
+  --text-main: #2D2D2D; /* Gris anthracite */
+  --text-muted: #64748B;
+  --text-light: #F8FAFC;
+  
+  --brand-accent: #2E6DA4; /* Bleu acier */
+  --brand-secondary: #0ea5e9;
+  
+  --status-safe: #27AE60; /* Vert sobre */
+  --status-warning: #E67E22; /* Orange */
+  --status-danger: #C0392B; /* Rouge */
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-glow: 0 0 10px rgba(46, 109, 164, 0.2);
+  
+  font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  color: var(--text-main);
+  background: var(--bg-main);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: var(--bg-main);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+
+/* Reusable Flat Panel */
+.glass-panel, .panel, .card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* Sober, smaller radius */
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.glass-panel:hover, .panel:hover, .card:hover {
+  border-color: var(--border-highlight);
+  box-shadow: var(--shadow-card);
+}
+
+/* Specific Font Classes */
+.font-roboto {
+  font-family: 'Roboto', sans-serif;
+}
+.font-mono {
+  font-family: 'Roboto Mono', monospace;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.4s ease-out forwards;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Typography styles */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter', sans-serif; /* Inter ou Roboto pour les titres */
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+a {
+  color: var(--brand-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

@@ -1,0 +1,22 @@
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import CentralInmatesList from './CentralInmatesList';
+import './Layout.css';
+
+const Layout = () => {
+  return (
+    <div className="layout-container">
+      <Sidebar />
+      <CentralInmatesList />
+      <div className="main-wrapper">
+        <Header />
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Layout;

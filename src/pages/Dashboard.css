@@ -1,0 +1,144 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.dashboard-header {
+  margin-bottom: 0.5rem;
+}
+
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: var(--text-main);
+}
+
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-card);
+}
+
+.stat-card h3 {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem;
+  line-height: 1;
+  color: var(--brand-accent);
+}
+
+.text-danger {
+  color: var(--status-danger);
+}
+
+.stat-change {
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.stat-change.positive { color: var(--status-safe); }
+.stat-change.negative { color: var(--status-danger); }
+.stat-change.neutral { color: var(--text-muted); }
+
+.progress-bar {
+  height: 8px;
+  background: var(--border-color);
+  border-radius: 4px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.progress-bar .fill {
+  height: 100%;
+  background: var(--status-warning); /* orange for 83% */
+  border-radius: 4px;
+}
+
+.stat-card.alert {
+  border-top: 4px solid var(--status-danger);
+}
+.stat-card.alert::before {
+  display: none;
+}
+
+/* Widgets */
+.dashboard-widgets {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+.widget {
+  padding: 1.5rem;
+  background-color: var(--bg-card);
+}
+
+.widget-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.activity-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--brand-accent);
+  border-radius: 50%;
+  margin-top: 4px;
+}
+
+.activity-dot.warning {
+  background: var(--status-warning);
+}
+
+.activity-content p {
+  margin: 0 0 0.25rem;
+  font-weight: 500;
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.activity-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
