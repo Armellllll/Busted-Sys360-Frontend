@@ -1,84 +1,63 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useInmatesData } from '../context/InmatesDataContext';
+import { User, Search } from 'lucide-react';
 import './InmatesList.css';
 
 const InmatesList = () => {
   const navigate = useNavigate();
-
-  const mockInmates = [
-    { 
-      id: '1', 
-      lastName: 'CARTER', 
-      firstName: 'Jason Aaron',
-      raceSexAge: 'W/M/30 years',
-      location: 'Judsonia, AR',
-      arrested: '7/18/2026 12:45AM',
-      released: 'Not Released'
-    },
-    { 
-      id: '2', 
-      lastName: 'Armstrong', 
-      firstName: 'Chon Elex',
-      raceSexAge: 'W/M/31 years',
-      location: 'Pocahontas, AR',
-      arrested: '7/18/2026 10:20AM',
-      released: 'Not Released'
-    },
-    { 
-      id: '3', 
-      lastName: 'Duren', 
-      firstName: 'Christopher',
-      raceSexAge: 'W/M/32 years',
-      location: 'Searcy, AR',
-      arrested: '7/18/2026 12:00AM',
-      released: 'Not Released'
-    },
-    { 
-      id: '4', 
-      lastName: 'Valencia', 
-      firstName: 'Jose M',
-      raceSexAge: 'U/M/40 years',
-      location: 'Bradford, AR',
-      arrested: '7/18/2026 12:34AM',
-      released: 'Not Released'
-    }
-  ];
+  const { role } = useAuth();
+  const { inmates } = useInmatesData();
 
   return (
     <div className="legacy-mobile-container">
-      {/* Mobile Header */}
-      <div className="legacy-header">
-        <div className="menu-icon">
-          <div className="hamburger-line"></div>
-          <div className="hamburger-line"></div>
-          <div className="hamburger-line"></div>
-        </div>
-        <div className="header-title">Inmates In-Jail({mockInmates.length})</div>
-        <div className="search-icon">🔍</div>
-      </div>
-
       {/* Sub Header */}
       <div className="legacy-subheader">
-        White County Sheriffs Office
+        Bureau du Shérif - BUSTEDSYS360
+      </div>
+      
+      <div className="legacy-filters" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <Search size={18} style={{ position: 'absolute', left: '10px', top: '10px', color: '#888' }} />
+          <input 
+            type="text" 
+            placeholder="Recherche de détenus..." 
+            className="search-input"
+            style={{ paddingLeft: '35px', width: '100%', boxSizing: 'border-box', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
+          />
+        </div>
+        {role === 'greffier' && (
+          <button 
+            className="add-inmate-btn" 
+            onClick={() => navigate('/inmates/new')}
+            style={{ width: '100%', padding: '10px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+          >
+            + Nouveau Détenu
+          </button>
+        )}
       </div>
 
       {/* List */}
       <div className="legacy-list">
-        {mockInmates.map((inmate) => (
+        {inmates.map((inmate) => (
           <div 
             key={inmate.id} 
             className="legacy-list-item"
             onClick={() => navigate(`/inmates/${inmate.id}`)}
           >
             <div className="legacy-photo-container">
-              {/* Silhouette Placeholder */}
-              <div className="legacy-silhouette"></div>
+              {inmate.photoUrl ? (
+                <img src={inmate.photoUrl} alt="Photo" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
+              ) : (
+                <User size={40} color="#CBD5E1" />
+              )}
             </div>
             <div className="legacy-details">
               <div className="legacy-name">{inmate.lastName}, {inmate.firstName}</div>
-              <div className="legacy-row">{inmate.raceSexAge}</div>
-              <div className="legacy-row">{inmate.location}</div>
-              <div className="legacy-row">Arrested: {inmate.arrested}</div>
-              <div className="legacy-row">Released: {inmate.released}</div>
+              <div className="legacy-row">Sexe/Race/Âge: {inmate.raceSexAge}</div>
+              <div className="legacy-row">Cellule: {inmate.cellule || 'Non assignée'}</div>
+              <div className="legacy-row">Arrêté le: {inmate.arrested}</div>
+              <div className="legacy-row">Libération: {inmate.released === 'Not Released' ? 'Non libéré' : inmate.released}</div>
             </div>
           </div>
         ))}

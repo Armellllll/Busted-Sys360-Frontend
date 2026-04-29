@@ -1,6 +1,9 @@
+import { useInmatesData } from '../context/InmatesDataContext';
 import './Dashboard.css';
 
 const Dashboard = () => {
+  const { inmates } = useInmatesData();
+
   return (
     <div className="dashboard animate-fade-in">
       <header className="dashboard-header">
@@ -11,8 +14,8 @@ const Dashboard = () => {
       <section className="stats-grid">
         <div className="stat-card card">
           <h3>Total Détenus</h3>
-          <p className="stat-value font-mono">1 245</p>
-          <span className="stat-change positive">+12 cette semaine</span>
+          <p className="stat-value font-mono">{inmates.length}</p>
+          <span className="stat-change positive">Mise à jour en direct</span>
         </div>
         <div className="stat-card card">
           <h3>Taux d'occupation</h3>

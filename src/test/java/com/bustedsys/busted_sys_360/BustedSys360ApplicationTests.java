@@ -1,0 +1,14 @@
+package com.bustedsys.busted_sys_360;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+@Disabled
+class BustedSys360ApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

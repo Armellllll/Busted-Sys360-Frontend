@@ -16,6 +16,7 @@ import ListePresence from './pages/ListePresence';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { InmateSelectionProvider } from './context/InmateSelectionContext';
+import { InmatesDataProvider } from './context/InmatesDataContext';
 import './index.css';
 
 function App() {
@@ -26,7 +27,13 @@ function App() {
           <Route path="/login" element={<Login />} />
           
           <Route element={<ProtectedRoute />}>
-            <Route element={<InmateSelectionProvider><Layout /></InmateSelectionProvider>}>
+            <Route element={
+              <InmatesDataProvider>
+                <InmateSelectionProvider>
+                  <Layout />
+                </InmateSelectionProvider>
+              </InmatesDataProvider>
+            }>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               
@@ -39,9 +46,13 @@ function App() {
                 <Route path="inmates/new" element={<InmateRegistration />} />
               </Route>
 
+              {/* Directeur, Greffier, Agent */}
+              <Route element={<ProtectedRoute allowedRoles={['directeur', 'greffier', 'agent']} />}>
+                <Route path="cells" element={<CellsManagement />} />
+              </Route>
+
               {/* Directeur */}
               <Route element={<ProtectedRoute allowedRoles={['directeur']} />}>
-                <Route path="cells" element={<CellsManagement />} />
                 <Route path="rapports-statistiques" element={<RapportsStatistiques />} />
                 <Route path="rapports-personnel" element={<RapportsPersonnel />} />
                 <Route path="notifications" element={<Notifications />} />
