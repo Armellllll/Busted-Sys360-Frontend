@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useInmatesData } from '../context/InmatesDataContext';
+import { useAuth } from '../context/AuthContext';
 import { CheckSquare, Square, User } from 'lucide-react';
 import './Dashboard.css';
 
 const ListePresence = () => {
   const { inmates } = useInmatesData();
+  const { role } = useAuth();
   const [attendance, setAttendance] = useState<Record<string, boolean>>({});
   const [submitted, setSubmitted] = useState(false);
 
-  const toggleAttendance = (id: string) => {
+  const toggleAttendance = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (submitted) return;
     setAttendance(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
@@ -68,7 +72,7 @@ const ListePresence = () => {
                       cursor: 'pointer',
                       transition: 'background 0.2s',
                     }}
-                    onClick={() => !submitted && toggleAttendance(inmate.id)}
+                    onClick={(e) => toggleAttendance(inmate.id, e)}
                   >
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

@@ -9,12 +9,12 @@ const InmatesList = () => {
   const { role } = useAuth();
   const { inmates } = useInmatesData();
 
+  // Seul le greffier peut modifier les informations
+  const canEdit = role === 'greffier';
+
   return (
     <div className="legacy-mobile-container">
-      {/* Sub Header */}
-      <div className="legacy-subheader">
-        Bureau du Shérif - BUSTEDSYS360
-      </div>
+
       
       <div className="legacy-filters" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ position: 'relative', width: '100%' }}>
@@ -26,7 +26,7 @@ const InmatesList = () => {
             style={{ paddingLeft: '35px', width: '100%', boxSizing: 'border-box', padding: '10px', borderRadius: '5px', border: '1px solid #ccc' }}
           />
         </div>
-        {role === 'greffier' && (
+        {canEdit && (
           <button 
             className="add-inmate-btn" 
             onClick={() => navigate('/inmates/new')}

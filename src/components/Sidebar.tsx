@@ -34,7 +34,7 @@ const Sidebar = () => {
           Tableau de bord
         </NavLink>
 
-        {['greffier'].includes(role!) && (
+        {['directeur', 'greffier', 'agent', 'responsable_visite'].includes(role!) && (
           <NavLink to="/inmates" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-icon"><Users size={20} /></span>
             Détenus

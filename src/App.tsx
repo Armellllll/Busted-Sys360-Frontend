@@ -21,62 +21,64 @@ import './index.css';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          
-          <Route element={<ProtectedRoute />}>
-            <Route element={
-              <InmatesDataProvider>
+    // InmatesDataProvider est au niveau racine, jamais re-monté lors des navigations
+    <InmatesDataProvider>
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            
+            <Route element={<ProtectedRoute />}>
+              <Route element={
                 <InmateSelectionProvider>
                   <Layout />
                 </InmateSelectionProvider>
-              </InmatesDataProvider>
-            }>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              
-              {/* Accessible by all authenticated users */}
-              <Route path="inmates" element={<InmatesList />} />
-              <Route path="inmates/:id" element={<InmateProfile />} />
-              
-              {/* Greffier */}
-              <Route element={<ProtectedRoute allowedRoles={['greffier']} />}>
-                <Route path="inmates/new" element={<InmateRegistration />} />
-              </Route>
+              }>
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                
+                {/* Accessible by all authenticated users */}
+                <Route path="inmates" element={<InmatesList />} />
+                <Route path="inmates/:id" element={<InmateProfile />} />
+                
+                {/* Greffier */}
+                <Route element={<ProtectedRoute allowedRoles={['greffier']} />}>
+                  <Route path="inmates/new" element={<InmateRegistration />} />
+                </Route>
 
-              {/* Directeur, Greffier, Agent */}
-              <Route element={<ProtectedRoute allowedRoles={['directeur', 'greffier', 'agent']} />}>
-                <Route path="cells" element={<CellsManagement />} />
-              </Route>
+                {/* Directeur, Greffier, Agent */}
+                <Route element={<ProtectedRoute allowedRoles={['directeur', 'greffier', 'agent']} />}>
+                  <Route path="cells" element={<CellsManagement />} />
+                </Route>
 
-              {/* Directeur */}
-              <Route element={<ProtectedRoute allowedRoles={['directeur']} />}>
-                <Route path="rapports-statistiques" element={<RapportsStatistiques />} />
-                <Route path="rapports-personnel" element={<RapportsPersonnel />} />
-                <Route path="notifications" element={<Notifications />} />
-              </Route>
+                {/* Directeur */}
+                <Route element={<ProtectedRoute allowedRoles={['directeur']} />}>
+                  <Route path="rapports-statistiques" element={<RapportsStatistiques />} />
+                  <Route path="rapports-personnel" element={<RapportsPersonnel />} />
+                  <Route path="notifications" element={<Notifications />} />
+                </Route>
 
-              {/* Agent */}
-              <Route element={<ProtectedRoute allowedRoles={['agent']} />}>
-                <Route path="medical" element={<MedicalDashboard />} />
-                <Route path="infractions" element={<InfractionDeclaration />} />
-                <Route path="liste-presence" element={<ListePresence />} />
-              </Route>
+                {/* Agent */}
+                <Route element={<ProtectedRoute allowedRoles={['agent']} />}>
+                  <Route path="medical" element={<MedicalDashboard />} />
+                  <Route path="infractions" element={<InfractionDeclaration />} />
+                  <Route path="liste-presence" element={<ListePresence />} />
+                </Route>
 
-              {/* Responsable Visite */}
-              <Route element={<ProtectedRoute allowedRoles={['responsable_visite']} />}>
-                <Route path="visites" element={<VisitsScheduler />} />
-              </Route>
+                {/* Responsable Visite */}
+                <Route element={<ProtectedRoute allowedRoles={['responsable_visite']} />}>
+                  <Route path="visites" element={<VisitsScheduler />} />
+                </Route>
 
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Route>
             </Route>
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </InmatesDataProvider>
   );
 }
 
 export default App;
+

@@ -1,15 +1,19 @@
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useSelectedInmate } from '../context/InmateSelectionContext';
 import { useInmatesData } from '../context/InmatesDataContext';
-import { User, Upload, ArrowLeft, FileText, Plus } from 'lucide-react';
+import { User, Upload, ArrowLeft, FileText, Plus, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
 import './InmateProfile.css';
 
 const InmateProfile = () => {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const { selectedInmate } = useSelectedInmate();
   const { updateInmatePhoto } = useInmatesData();
   const [documents, setDocuments] = useState<string[]>(['Mandat d\'arrêt']);
+
+  const canEdit = role === 'greffier';
 
   if (!selectedInmate) {
     return (
@@ -45,14 +49,13 @@ const InmateProfile = () => {
           <ArrowLeft size={16} /> Retour
         </div>
         <div className="header-right">
-          Détails du profil
+          Profil {canEdit ? 'Auteur de modification' : 'Aperçu (Lecture seule)'}
         </div>
       </div>
 
       <div className="legacy-profile-body">
         {/* Photo Section */}
         <div className="legacy-profile-photo-section" style={{ position: 'relative' }}>
-          <div className="nav-arrow left-arrow">{'<'}</div>
           <div className="large-photo" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#6C8CA5', width: '150px', height: '180px', borderRadius: '5px', overflow: 'hidden' }}>
             {selectedInmate.photoUrl ? (
               <img src={selectedInmate.photoUrl} alt="Photo du détenu" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -61,12 +64,18 @@ const InmateProfile = () => {
             )}
             
             {/* Upload Button */}
-            <label className="photo-upload-btn" style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'rgba(0,0,0,0.6)', padding: '5px', borderRadius: '50%', cursor: 'pointer' }}>
-              <Upload size={16} color="#fff" />
-              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
-            </label>
+            {canEdit && (
+              <label className="photo-upload-btn" style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'rgba(0,0,0,0.6)', padding: '5px', borderRadius: '50%', cursor: 'pointer' }}>
+                <Upload size={16} color="#fff" />
+                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoUpload} />
+              </label>
+            )}
+            {!canEdit && (
+              <div style={{ position: 'absolute', bottom: '5px', right: '5px', background: 'rgba(0,0,0,0.4)', padding: '5px', borderRadius: '50%', pointerEvents: 'none' }}>
+                <ShieldCheck size={14} color="#aaa" />
+              </div>
+            )}
           </div>
-          <div className="nav-arrow right-arrow">{'>'}</div>
         </div>
 
         {/* Info Header */}
@@ -85,9 +94,11 @@ const InmateProfile = () => {
         <div className="legacy-block">
           <div className="legacy-block-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>Documents Légaux ({documents.length})</span>
-            <button onClick={handleDocumentUpload} style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
-              <Plus size={12} /> Ajouter
-            </button>
+            {canEdit && (
+              <button onClick={handleDocumentUpload} style={{ background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '4px', padding: '2px 6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px' }}>
+                <Plus size={12} /> Ajouter
+              </button>
+            )}
           </div>
           <div className="legacy-block-content" style={{ maxHeight: '150px', overflowY: 'auto' }}>
             {documents.map((doc, idx) => (

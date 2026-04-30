@@ -6,7 +6,7 @@ import './InmateRegistration.css';
 
 const InmateRegistration = () => {
   const navigate = useNavigate();
-  const { inmates, setInmates } = useInmatesData();
+  const { addInmate, isLoading } = useInmatesData();
 
   const [lastName, setLastName] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -27,17 +27,15 @@ const InmateRegistration = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Calculate age from dob
+    // Calcul de l'âge depuis la date de naissance
     const dobDate = new Date(dob);
-    const ageDiff = Date.now() - dobDate.getTime();
-    const ageDate = new Date(ageDiff);
-    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    const age = Math.floor((Date.now() - dobDate.getTime()) / (1000 * 60 * 60 * 24 * 365.25));
 
+    // Construction de l'objet détenu (sans id, géré par addInmate)
     const newInmate = {
-      id: String(inmates.length + 1),
       lastName: lastName.toUpperCase(),
       firstName,
       dob,
@@ -54,7 +52,9 @@ const InmateRegistration = () => {
       sanctions: [],
     };
 
-    setInmates([...inmates, newInmate]);
+    // 1. Appel centralisé → simule POST backend (ou vrai fetch quand le backend sera prêt)
+    await addInmate(newInmate);
+    // 2. Backend confirmé → fermeture du formulaire, la liste globale est déjà à jour
     navigate('/inmates');
   };
 
@@ -144,8 +144,10 @@ const InmateRegistration = () => {
           </div>
 
           <div className="form-actions">
-            <button type="button" className="btn-secondary" onClick={() => navigate('/inmates')}>Annuler</button>
-            <button type="submit" className="btn-primary">Enregistrer l'admission</button>
+            <button type="button" className="btn-secondary" onClick={() => navigate('/inmates')} disabled={isLoading}>Annuler</button>
+            <button type="submit" className="btn-primary" disabled={isLoading}>
+              {isLoading ? 'Enregistrement en cours...' : "Enregistrer l'admission"}
+            </button>
           </div>
         </form>
       </div>

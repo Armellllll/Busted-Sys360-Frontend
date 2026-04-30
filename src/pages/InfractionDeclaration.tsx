@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelectedInmate } from '../context/InmateSelectionContext';
-import { ShieldAlert, CheckCircle, Activity } from 'lucide-react';
+import { useInmatesData } from '../context/InmatesDataContext';
+import { ShieldAlert, CheckCircle, Activity, User } from 'lucide-react';
 import './InfractionDeclaration.css';
 
 const InfractionDeclaration = () => {
   const { selectedInmate } = useSelectedInmate();
+  const { setInmates, inmates } = useInmatesData();
   const navigate = useNavigate();
   
   const [infractionType, setInfractionType] = useState('Bagarre');
@@ -23,15 +25,27 @@ const InfractionDeclaration = () => {
   }
 
   const handleValidation = () => {
-    // Sequence Diagram Logic Simulated here
-    console.log("Transmission des données via la couche réseau sécurisée...");
-    console.log("Calcul automatique de la sanction en cours...");
     setStep(2);
   };
 
   const confirmInfraction = () => {
-    console.log("Enregistrement en base de données...");
-    console.log("Fiche détenu mise à jour...");
+    const today = new Date().toLocaleDateString('fr-FR');
+    const newSanction = {
+      date: today,
+      description: `${infractionType} (${severity}) : Sanction appliquée.`
+    };
+
+    const updatedInmates = inmates.map(i => {
+      if (i.id === selectedInmate.id) {
+        return {
+          ...i,
+          sanctions: [...(i.sanctions || []), newSanction]
+        };
+      }
+      return i;
+    });
+
+    setInmates(updatedInmates);
     setStep(3);
   };
 
@@ -52,11 +66,21 @@ const InfractionDeclaration = () => {
       </header>
 
       {/* Résumé du détenu */}
-      <div className="card inmate-summary" style={{ display: 'flex', gap: '15px', padding: '15px', marginBottom: '20px', alignItems: 'center', borderLeft: '4px solid #2E6DA4' }}>
-         <div className="summary-photo" style={{ width: '60px', height: '60px', backgroundColor: '#333', borderRadius: '50%' }}></div>
+      <div 
+        className="card inmate-summary" 
+        style={{ display: 'flex', gap: '15px', padding: '15px', marginBottom: '20px', alignItems: 'center', borderLeft: '4px solid #2E6DA4' }}
+      >
+         <div className="summary-photo" style={{ width: '60px', height: '60px', backgroundColor: '#6C8CA5', borderRadius: '50%', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+           {selectedInmate.photoUrl 
+             ? <img src={selectedInmate.photoUrl} alt="Photo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+             : <User size={30} color="#CBD5E1" />
+           }
+         </div>
          <div>
             <h3 style={{ margin: '0 0 5px 0', color: 'var(--brand-accent)' }}>{selectedInmate.lastName}, {selectedInmate.firstName}</h3>
-            <p style={{ margin: 0, color: '#555', fontSize: '0.9rem' }}>Cellule: A-12 | Statut: {selectedInmate.releaseStatus.toUpperCase()}</p>
+            <p style={{ margin: 0, color: '#e2e8f0', fontSize: '0.9rem' }}>
+              Cellule: {selectedInmate.cellule || 'A-12'} | Statut: {selectedInmate.releaseStatus.toUpperCase()}
+            </p>
          </div>
       </div>
 
@@ -118,7 +142,7 @@ const InfractionDeclaration = () => {
               <div className="preview-header">
                 <ShieldAlert size={24} />
                 <h4>Isolement Disciplinaire</h4>
-                <span className="badge-severity elevee">Haute</span>
+                <span className={`badge-severity elevee`}>Haute</span>
               </div>
               <div className="preview-content">
                 <p><strong>Durée calculée :</strong> 5 jours</p>
@@ -138,7 +162,7 @@ const InfractionDeclaration = () => {
 
         {step === 3 && (
           <div className="success-panel animate-fade-in">
-            <CheckCircle className="success-icon" size={64} />
+            <CheckCircle className="success-icon" size={64} color="#22c55e" />
             <h2>Infraction Enregistrée</h2>
             <p>Le dossier du détenu a été mis à jour.</p>
             <p>La sanction est applicable immédiatement selon le protocole de sécurité en vigueur.</p>
@@ -148,17 +172,6 @@ const InfractionDeclaration = () => {
           </div>
         )}
       </div>
-
-      {/* Historique Infractions */}
-      <div className="card" style={{ padding: '20px', marginTop: '20px' }}>
-         <h3 style={{ color: 'var(--brand-accent)', borderBottom: '1px solid #CCC', paddingBottom: '10px' }}>Historique des infractions récentes</h3>
-         <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li style={{ padding: '10px 0', borderBottom: '1px solid #EEE' }}>
-               <strong style={{ color: '#444' }}>10 Fév 2026</strong> - Refus d'obtempérer (Confinement 24h)
-            </li>
-         </ul>
-      </div>
-
     </div>
   );
 };

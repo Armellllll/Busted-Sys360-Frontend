@@ -21,7 +21,10 @@ export interface Inmate {
 
 interface InmatesDataContextType {
   inmates: Inmate[];
+  isLoading: boolean;
   setInmates: (inmates: Inmate[]) => void;
+  addInmate: (inmate: Omit<Inmate, 'id'>) => Promise<void>;
+  refreshInmates: () => Promise<void>;
   updateInmatePhoto: (id: string, photoUrl: string) => void;
 }
 
@@ -36,9 +39,9 @@ const defaultInmates: Inmate[] = [
     raceSexAge: 'W/M/30 years',
     location: 'Judsonia, AR',
     cellule: 'A-101',
-    arrested: '7/18/2026 12:45AM',
-    sentenceDuration: '5 Years',
-    released: '12/10/2031',
+    arrested: '18/07/2026 00:45',
+    sentenceDuration: '5 ans',
+    released: '10/12/2031',
     releaseStatus: 'safe',
     sanctions: [{ date: '01/05/2026', description: 'Altération mineure' }]
   },
@@ -52,9 +55,9 @@ const defaultInmates: Inmate[] = [
     raceSexAge: 'W/M/31 years',
     location: 'Pocahontas, AR',
     cellule: 'B-205',
-    arrested: '7/18/2026 10:20AM',
-    sentenceDuration: '1 Year',
-    released: '08/15/2026',
+    arrested: '18/07/2026 10:20',
+    sentenceDuration: '1 an',
+    released: '15/08/2026',
     releaseStatus: 'warning',
     sanctions: []
   },
@@ -68,9 +71,9 @@ const defaultInmates: Inmate[] = [
     raceSexAge: 'W/M/32 years',
     location: 'Searcy, AR',
     cellule: 'A-102',
-    arrested: '7/18/2026 12:00AM',
-    sentenceDuration: '6 Months',
-    released: '05/01/2026',
+    arrested: '18/07/2026 00:00',
+    sentenceDuration: '6 mois',
+    released: '01/05/2026',
     releaseStatus: 'danger',
     sanctions: [{ date: '03/12/2026', description: 'Bagarre dans la cour' }]
   },
@@ -84,9 +87,9 @@ const defaultInmates: Inmate[] = [
     raceSexAge: 'U/M/40 years',
     location: 'Bradford, AR',
     cellule: 'C-080',
-    arrested: '7/18/2026 12:34AM',
-    sentenceDuration: 'Life',
-    released: 'Not Released',
+    arrested: '18/07/2026 00:34',
+    sentenceDuration: 'Perpétuité',
+    released: 'Non libéré',
     releaseStatus: 'safe',
     sanctions: []
   }
@@ -96,6 +99,40 @@ const InmatesDataContext = createContext<InmatesDataContextType | undefined>(und
 
 export const InmatesDataProvider = ({ children }: { children: ReactNode }) => {
   const [inmates, setInmates] = useState<Inmate[]>(defaultInmates);
+  const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * addInmate — simule un appel POST vers le backend.
+   * Quand le vrai backend sera prêt, remplacer le bloc simulé
+   * par: const saved = await api.post('/inmates', inmate)
+   * puis appeler refreshInmates() pour récupérer la liste à jour.
+   */
+  const addInmate = async (inmate: Omit<Inmate, 'id'>): Promise<void> => {
+    setIsLoading(true);
+    // --- Simulation backend (à remplacer par fetch réel) ---
+    await new Promise(resolve => setTimeout(resolve, 600));
+    const newId = String(Date.now());
+    const saved: Inmate = { ...inmate, id: newId };
+    // -------------------------------------------------------
+    // Mise à jour globale via updater fonctionnel (jamais de stale state)
+    setInmates(prev => [...prev, saved]);
+    setIsLoading(false);
+  };
+
+  /**
+   * refreshInmates — simule un appel GET /inmates vers le backend.
+   * Quand le vrai backend sera prêt, remplacer par:
+   * const data = await api.get('/inmates')
+   * setInmates(data)
+   */
+  const refreshInmates = async (): Promise<void> => {
+    setIsLoading(true);
+    // --- Simulation backend (à remplacer par fetch réel) ---
+    await new Promise(resolve => setTimeout(resolve, 400));
+    // La liste est déjà à jour en mémoire, rien à remplacer en mode mock
+    // -------------------------------------------------------
+    setIsLoading(false);
+  };
 
   const updateInmatePhoto = (id: string, photoUrl: string) => {
     setInmates(prev => prev.map(inmate => 
@@ -104,7 +141,7 @@ export const InmatesDataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <InmatesDataContext.Provider value={{ inmates, setInmates, updateInmatePhoto }}>
+    <InmatesDataContext.Provider value={{ inmates, isLoading, setInmates, addInmate, refreshInmates, updateInmatePhoto }}>
       {children}
     </InmatesDataContext.Provider>
   );
