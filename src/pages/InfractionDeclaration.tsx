@@ -7,7 +7,7 @@ import './InfractionDeclaration.css';
 
 const InfractionDeclaration = () => {
   const { selectedInmate } = useSelectedInmate();
-  const { setInmates, inmates } = useInmatesData();
+  const { setInmates, inmates, triggerRealTimeEvent } = useInmatesData();
   const navigate = useNavigate();
   
   const [infractionType, setInfractionType] = useState('Bagarre');
@@ -30,9 +30,21 @@ const InfractionDeclaration = () => {
 
   const confirmInfraction = () => {
     const today = new Date().toLocaleDateString('fr-FR');
+    
+    // Si la gravité est "Critique", on alerte le directeur
+    if (severity === 'Critique') {
+      triggerRealTimeEvent({
+        type: 'infraction_manual_sanction',
+        title: 'DÉCISION SANCTION REQUISE',
+        message: `Infraction Critique pour ${selectedInmate.lastName}. Aucune sanction prédéfinie.`,
+        severity: 'critique',
+        data: { inmateId: selectedInmate.id }
+      });
+    }
+
     const newSanction = {
       date: today,
-      description: `${infractionType} (${severity}) : Sanction appliquée.`
+      description: `${infractionType} (${severity}) : ${severity === 'Critique' ? 'EN ATTENTE DÉCISION DIRECTEUR' : 'Sanction appliquée.'}`
     };
 
     const updatedInmates = inmates.map(i => {
@@ -153,8 +165,8 @@ const InfractionDeclaration = () => {
 
             <div className="form-actions" style={{ gap: '1rem', display: 'flex' }}>
               <button className="btn-secondary" onClick={() => setStep(1)}>Modifier la déclaration</button>
-              <button className="btn-primary" onClick={confirmInfraction} style={{ background: 'var(--status-danger)', border: 'none' }}>
-                Confirmer et Appliquer
+              <button className="btn-primary" onClick={confirmInfraction} style={{ background: severity === 'Critique' ? '#D35400' : 'var(--status-danger)', border: 'none' }}>
+                {severity === 'Critique' ? 'Transmettre au Directeur' : 'Confirmer et Appliquer'}
               </button>
             </div>
           </div>

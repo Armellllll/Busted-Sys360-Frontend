@@ -13,6 +13,7 @@ import RapportsStatistiques from './pages/RapportsStatistiques';
 import RapportsPersonnel from './pages/RapportsPersonnel';
 import Notifications from './pages/Notifications';
 import ListePresence from './pages/ListePresence';
+import MedicalManagement from './pages/MedicalManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { InmateSelectionProvider } from './context/InmateSelectionContext';
@@ -68,6 +69,11 @@ function App() {
                 {/* Responsable Visite */}
                 <Route element={<ProtectedRoute allowedRoles={['responsable_visite']} />}>
                   <Route path="visites" element={<VisitsScheduler />} />
+                </Route>
+
+                {/* Service Médical */}
+                <Route element={<ProtectedRoute allowedRoles={['service_medical']} />}>
+                  <Route path="medical-management" element={<MedicalManagement />} />
                 </Route>
 
                 <Route path="*" element={<Navigate to="/dashboard" replace />} />

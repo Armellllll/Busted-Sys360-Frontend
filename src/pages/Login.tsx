@@ -26,7 +26,7 @@ const Login = () => {
 
       setTimeout(() => {
         setIsLoading(false);
-        const validRoles = ['agent', 'responsable_visite', 'directeur', 'greffier'];
+        const validRoles = ['agent', 'responsable_visite', 'directeur', 'greffier', 'service_medical'];
         const role = username.toLowerCase();
         if (validRoles.includes(role)) {
           login(role, password);
@@ -34,9 +34,10 @@ const Login = () => {
           else if (role === 'directeur') navigate('/dashboard');
           else if (role === 'agent') navigate('/infractions');
           else if (role === 'responsable_visite') navigate('/visites');
+          else if (role === 'service_medical') navigate('/medical-management');
           else navigate('/dashboard');
         } else {
-          setError('Identifiants incorrects. Utilisateurs valides: agent, responsable_visite, directeur, greffier.');
+          setError('Identifiants incorrects. Utilisateurs valides: agent, responsable_visite, directeur, greffier, service_medical.');
         }
       }, 800);
   };

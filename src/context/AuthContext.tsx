@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 
-export type Role = 'agent' | 'responsable_visite' | 'directeur' | 'greffier';
+export type Role = 'agent' | 'responsable_visite' | 'directeur' | 'greffier' | 'service_medical';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (username: string) => {
     console.log(`Authentification réussie pour : ${username}`);
     setIsAuthenticated(true);
-    if (['agent', 'responsable_visite', 'directeur', 'greffier'].includes(username)) {
+    if (['agent', 'responsable_visite', 'directeur', 'greffier', 'service_medical'].includes(username)) {
       setRole(username as Role);
     }
   };

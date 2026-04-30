@@ -62,6 +62,13 @@ const Sidebar = () => {
           </NavLink>
         )}
 
+        {['service_medical'].includes(role!) && (
+          <NavLink to="/medical-management" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+            <span className="nav-icon"><Stethoscope size={20} /></span>
+            Gestion Médicale
+          </NavLink>
+        )}
+
         {['responsable_visite'].includes(role!) && (
           <NavLink to="/visites" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
             <span className="nav-icon"><Calendar size={20} /></span>

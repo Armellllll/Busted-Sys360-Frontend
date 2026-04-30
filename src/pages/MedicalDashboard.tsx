@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useSelectedInmate } from '../context/InmateSelectionContext';
+import { useInmatesData } from '../context/InmatesDataContext';
 import { Activity, Calendar } from 'lucide-react';
 import './MedicalDashboard.css';
 
 const MedicalDashboard = () => {
   const { selectedInmate } = useSelectedInmate();
+  const { addMedicalRequest, medicalRequests } = useInmatesData();
   const [mode, setMode] = useState<'rdv' | 'urgence'>('rdv');
+  const [severity, setSeverity] = useState<'basse' | 'moyenne' | 'haute' | 'critique'>('moyenne');
   const [reason, setReason] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
@@ -20,6 +23,15 @@ const MedicalDashboard = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    addMedicalRequest({
+      inmateId: selectedInmate.id,
+      inmateName: `${selectedInmate.firstName} ${selectedInmate.lastName}`,
+      type: mode,
+      reason: reason,
+      severity: mode === 'urgence' ? severity : 'basse'
+    });
+
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);
@@ -92,7 +104,7 @@ const MedicalDashboard = () => {
         ) : (
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="input-group full-width">
-              <label>Détenu concerné (Verrouillé)</label>
+              <label>Détenu sélectionné</label>
               <input type="text" value={`#${selectedInmate.id} - ${selectedInmate.firstName} ${selectedInmate.lastName}`} disabled style={{ backgroundColor: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid var(--border-color)' }} />
             </div>
             
@@ -107,6 +119,35 @@ const MedicalDashboard = () => {
                 style={{ width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-color)', background: 'var(--bg-main)', color: 'var(--text-main)' }}
               />
             </div>
+
+            {mode === 'urgence' && (
+              <div className="input-group full-width">
+                <label>Niveau de Gravité</label>
+                <div style={{ display: 'flex', gap: '10px', marginTop: '5px' }}>
+                  {['basse', 'moyenne', 'haute', 'critique'].map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => setSeverity(s as any)}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        borderRadius: '4px',
+                        border: '1px solid var(--border-color)',
+                        backgroundColor: severity === s ? (s === 'critique' ? '#C0392B' : s === 'haute' ? '#D35400' : s === 'moyenne' ? '#2E6DA4' : '#16A085') : 'transparent',
+                        color: severity === s ? 'white' : 'var(--text-main)',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        cursor: 'pointer',
+                        textTransform: 'capitalize'
+                      }}
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
                <button 
@@ -128,19 +169,47 @@ const MedicalDashboard = () => {
         )}
       </div>
 
-      {/* Historique Médical */}
+      {/* Historique Médical (Dynamique) */}
       <div className="card" style={{ padding: '20px' }}>
-         <h3 style={{ color: 'var(--brand-accent)', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px' }}>Historique Médical</h3>
-         <ul style={{ listStyle: 'none', padding: 0 }}>
-            <li style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-               <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>05 Jan 2026</span>
-               <span style={{ color: '#94a3b8' }}>Contrôle routine (Apte)</span>
-            </li>
-            <li style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between' }}>
-               <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>12 Déc 2025</span>
-               <span style={{ color: '#94a3b8' }}>Douleurs dentaires (Traitement prescrit)</span>
-            </li>
-         </ul>
+         <h3 style={{ color: 'var(--brand-accent)', borderBottom: '1px solid var(--border-color)', paddingBottom: '10px', marginBottom: '15px' }}>Suivi des Demandes Récentes</h3>
+         
+         {medicalRequests.filter(r => r.inmateId === selectedInmate.id).length === 0 ? (
+           <p style={{ opacity: 0.5, fontSize: '0.9rem' }}>Aucune demande récente pour ce détenu.</p>
+         ) : (
+           <ul style={{ listStyle: 'none', padding: 0 }}>
+              {medicalRequests
+                .filter(req => req.inmateId === selectedInmate.id)
+                .map(req => (
+                  <li key={req.id} style={{ padding: '12px 0', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 'bold', color: '#e2e8f0' }}>{req.date}</span>
+                      <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>{req.type.toUpperCase()} : {req.reason}</span>
+                    </div>
+                    <span 
+                      style={{ 
+                        padding: '4px 10px', 
+                        borderRadius: '12px', 
+                        fontSize: '0.75rem', 
+                        fontWeight: 'bold',
+                        backgroundColor: 
+                          req.status === 'treated' ? 'rgba(34, 197, 94, 0.1)' : 
+                          req.status === 'pending' ? 'rgba(234, 179, 8, 0.1)' : 'rgba(239, 68, 68, 0.1)',
+                        color: 
+                          req.status === 'treated' ? '#22c55e' : 
+                          req.status === 'pending' ? '#eab308' : '#ef4444',
+                        border: `1px solid ${
+                          req.status === 'treated' ? '#22c55e' : 
+                          req.status === 'pending' ? '#eab308' : '#ef4444'
+                        }`
+                      }}
+                    >
+                      {req.status === 'treated' ? 'TRAITÉ' : 
+                       req.status === 'pending' ? 'EN ATTENTE' : 'ANNULÉ'}
+                    </span>
+                  </li>
+                ))}
+           </ul>
+         )}
       </div>
     </div>
   );

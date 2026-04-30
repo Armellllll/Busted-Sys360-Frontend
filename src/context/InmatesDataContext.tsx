@@ -19,13 +19,40 @@ export interface Inmate {
   sanctions?: { date: string; description: string }[];
 }
 
+export interface MedicalRequest {
+  id: string;
+  inmateId: string;
+  inmateName: string;
+  type: 'rdv' | 'urgence';
+  reason: string;
+  date: string;
+  status: 'pending' | 'treated' | 'cancelled';
+  severity?: 'basse' | 'moyenne' | 'haute' | 'critique';
+}
+
+export interface RealTimeEvent {
+  id: string;
+  type: 'medical_emergency' | 'medical_rdv' | 'medical_update' | 'new_inmate' | 'infraction_manual_sanction';
+  title: string;
+  message: string;
+  severity?: 'basse' | 'moyenne' | 'haute' | 'critique';
+  date: string;
+  data?: any;
+}
+
 interface InmatesDataContextType {
   inmates: Inmate[];
+  medicalRequests: MedicalRequest[];
+  latestEvent?: RealTimeEvent;
   isLoading: boolean;
   setInmates: (inmates: Inmate[]) => void;
   addInmate: (inmate: Omit<Inmate, 'id'>) => Promise<void>;
   refreshInmates: () => Promise<void>;
   updateInmatePhoto: (id: string, photoUrl: string) => void;
+  addMedicalRequest: (request: Omit<MedicalRequest, 'id' | 'status' | 'date' | 'severity'> & { severity: MedicalRequest['severity'] }) => void;
+  updateMedicalRequestStatus: (id: string, status: MedicalRequest['status']) => void;
+  triggerRealTimeEvent: (event: Omit<RealTimeEvent, 'id' | 'date'>) => void;
+  clearLatestEvent: () => void;
 }
 
 const defaultInmates: Inmate[] = [
@@ -99,23 +126,74 @@ const InmatesDataContext = createContext<InmatesDataContextType | undefined>(und
 
 export const InmatesDataProvider = ({ children }: { children: ReactNode }) => {
   const [inmates, setInmates] = useState<Inmate[]>(defaultInmates);
+  const [medicalRequests, setMedicalRequests] = useState<MedicalRequest[]>([]);
+  const [latestEvent, setLatestEvent] = useState<RealTimeEvent | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
+
+  const triggerRealTimeEvent = (event: Omit<RealTimeEvent, 'id' | 'date'>) => {
+    setLatestEvent({
+      ...event,
+      id: String(Date.now()),
+      date: new Date().toLocaleString('fr-FR')
+    });
+  };
+
+  const clearLatestEvent = () => setLatestEvent(undefined);
+
+  const addMedicalRequest = (request: Omit<MedicalRequest, 'id' | 'status' | 'date' | 'severity'> & { severity: MedicalRequest['severity'] }) => {
+    const newRequest: MedicalRequest = {
+      ...request,
+      id: String(Date.now()),
+      date: new Date().toLocaleString('fr-FR'),
+      status: 'pending'
+    };
+    setMedicalRequests(prev => [newRequest, ...prev]);
+    
+    // Déclenche une alerte temps réel (WebSocket simulation)
+    triggerRealTimeEvent({
+      type: newRequest.type === 'urgence' ? 'medical_emergency' : 'medical_rdv',
+      title: newRequest.type === 'urgence' ? 'ALERTE MÉDICALE URGENTE' : 'Nouvelle Demande de RDV',
+      message: `${newRequest.inmateName} : ${newRequest.reason}`,
+      severity: newRequest.severity
+    });
+  };
+
+  const updateMedicalRequestStatus = (id: string, status: MedicalRequest['status']) => {
+    setMedicalRequests(prev => {
+      const updated = prev.map(req => 
+        req.id === id ? { ...req, status } : req
+      );
+      
+      const request = updated.find(r => r.id === id);
+      if (request) {
+        triggerRealTimeEvent({
+          type: 'medical_update',
+          title: 'MISE À JOUR MÉDICALE',
+          message: `La demande pour ${request.inmateName} a été ${status === 'treated' ? 'Traitée' : 'Annulée'}.`,
+          data: { inmateId: request.inmateId }
+        });
+      }
+      return updated;
+    });
+  };
 
   /**
    * addInmate — simule un appel POST vers le backend.
-   * Quand le vrai backend sera prêt, remplacer le bloc simulé
-   * par: const saved = await api.post('/inmates', inmate)
-   * puis appeler refreshInmates() pour récupérer la liste à jour.
    */
   const addInmate = async (inmate: Omit<Inmate, 'id'>): Promise<void> => {
     setIsLoading(true);
-    // --- Simulation backend (à remplacer par fetch réel) ---
     await new Promise(resolve => setTimeout(resolve, 600));
     const newId = String(Date.now());
     const saved: Inmate = { ...inmate, id: newId };
-    // -------------------------------------------------------
-    // Mise à jour globale via updater fonctionnel (jamais de stale state)
     setInmates(prev => [...prev, saved]);
+    
+    // Notification pour le Directeur
+    triggerRealTimeEvent({
+      type: 'new_inmate',
+      title: 'NOUVELLE ADMISSION',
+      message: `Le détenu ${saved.firstName} ${saved.lastName} a été enregistré.`
+    });
+    
     setIsLoading(false);
   };
 
@@ -141,7 +219,20 @@ export const InmatesDataProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <InmatesDataContext.Provider value={{ inmates, isLoading, setInmates, addInmate, refreshInmates, updateInmatePhoto }}>
+    <InmatesDataContext.Provider value={{ 
+      inmates, 
+      medicalRequests, 
+      latestEvent,
+      isLoading, 
+      setInmates, 
+      addInmate, 
+      refreshInmates, 
+      updateInmatePhoto,
+      addMedicalRequest,
+      updateMedicalRequestStatus,
+      triggerRealTimeEvent,
+      clearLatestEvent
+    }}>
       {children}
     </InmatesDataContext.Provider>
   );
